@@ -8,7 +8,7 @@ import {
   getSortedRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import { cn } from "@/lib/utils"; 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown, Edit, Trash } from "lucide-react";
 import { toast } from "@/components/ui/toast";
@@ -19,7 +19,12 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Post = {
   id: number;
@@ -45,9 +50,6 @@ export function PostTable({ posts }: PostTableProps) {
   const confirmDelete = () => {
     if (!selectedPost) return;
 
-    // TODO: Replace with API call
-    console.log("Deleting post:", selectedPost);
-
     toast({
       title: "Post deleted",
       description: `Post "${selectedPost.title}" has been removed.`,
@@ -61,18 +63,28 @@ export function PostTable({ posts }: PostTableProps) {
     {
       accessorKey: "id",
       header: ({ column }) => (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center justify-center mx-auto"
+        >
           ID
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
         </Button>
       ),
     },
     {
       accessorKey: "title",
       header: ({ column }) => (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center justify-center mx-auto"
+        >
           Title
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
         </Button>
       ),
     },
@@ -83,9 +95,13 @@ export function PostTable({ posts }: PostTableProps) {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="truncate max-w-xs cursor-pointer">{row.original.body}</div>
+              <div className="truncate max-w-[180px] sm:max-w-xs cursor-pointer text-sm sm:text-base">
+                {row.original.body}
+              </div>
             </TooltipTrigger>
-            <TooltipContent className="max-w-xs p-2">{row.original.body}</TooltipContent>
+            <TooltipContent className="max-w-xs p-2 text-sm">
+              {row.original.body}
+            </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       ),
@@ -93,9 +109,14 @@ export function PostTable({ posts }: PostTableProps) {
     {
       accessorKey: "userId",
       header: ({ column }) => (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex items-center justify-center mx-auto"
+        >
           User ID
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
         </Button>
       ),
     },
@@ -103,12 +124,23 @@ export function PostTable({ posts }: PostTableProps) {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <div className="flex gap-2 justify-center">
-          <Button variant="outline" size="sm">
-            <Edit className="h-4 w-4" />
+        <div className="flex gap-1 sm:gap-2 justify-center">
+          <Button
+            variant="outline"
+            size="sm"
+            className="p-1 sm:p-2"
+            aria-label="Edit"
+          >
+            <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
-          <Button variant="destructive" size="sm" onClick={() => handleDeleteClick(row.original)}>
-            <Trash className="h-4 w-4" />
+          <Button
+            variant="destructive"
+            size="sm"
+            className="p-1 sm:p-2"
+            onClick={() => handleDeleteClick(row.original)}
+            aria-label="Delete"
+          >
+            <Trash className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
         </div>
       ),
@@ -125,37 +157,54 @@ export function PostTable({ posts }: PostTableProps) {
   });
 
   return (
-    <div  className={cn(
-            "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
-            
-          )}>
-      {/* Table */}
-      <table className="w-full border-collapse">
-        <thead>
-          {table.getHeaderGroups().map((hg) => (
-            <tr key={hg.id}>
-              {hg.headers.map((header) => (
-                <th key={header.id} className="p-2 text-center">
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(header.column.columnDef.header, header.getContext())}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="border-t">
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="p-2 text-center">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div
+      className={cn(
+        "bg-card text-card-foreground rounded-xl border py-4 sm:py-6 px-2 sm:px-4 shadow-sm overflow-hidden"
+      )}
+    >
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-sm sm:text-base">
+          <thead className="bg-muted/40">
+            {table.getHeaderGroups().map((hg) => (
+              <tr key={hg.id}>
+                {hg.headers.map((header) => (
+                  <th
+                    key={header.id}
+                    className="p-2 sm:p-3 text-center font-semibold whitespace-nowrap"
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr
+                key={row.id}
+                className="border-t hover:bg-muted/20 transition-colors"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td
+                    key={cell.id}
+                    className="p-2 sm:p-3 text-center align-middle"
+                  >
+                    {flexRender(
+                      cell.column.columnDef.cell,
+                      cell.getContext()
+                    )}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Delete confirmation modal */}
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
@@ -163,8 +212,9 @@ export function PostTable({ posts }: PostTableProps) {
           <DialogHeader>
             <DialogTitle>Confirm Delete</DialogTitle>
           </DialogHeader>
-          <p className="my-4 text-center">
-            Are you sure you want to delete <strong>{selectedPost?.title}</strong>?
+          <p className="my-4 text-center text-sm sm:text-base">
+            Are you sure you want to delete{" "}
+            <strong>{selectedPost?.title}</strong>?
           </p>
           <DialogFooter className="flex justify-center gap-4">
             <Button variant="outline" onClick={() => setOpenDialog(false)}>

@@ -1,11 +1,13 @@
-import  { useEffect } from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // <-- import navigate
 import { useUsers } from "../features/users/hooks/useUsers";
-import{UserTable} from "../features/users/components/UserTable";
+import { UserTable } from "../features/users/components/UserTable";
 import { toast } from "react-toastify";
 import { StatCard } from "@/features/dashboard/components/StatCard";
 import { Button } from "@/components/ui/button";
 
 const UsersPage = () => {
+  const navigate = useNavigate(); // <-- initialize navigate
   const { data: users, isLoading, error } = useUsers();
 
   useEffect(() => {
@@ -33,14 +35,13 @@ const UsersPage = () => {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header actions */}
+      {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Users</h1>
-       
       </div>
 
       {/* Stat cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard label="Total Users" value={totalUsers} />
         <StatCard label="Avg Age" value={avgAge.toFixed(1)} />
         <StatCard
@@ -48,13 +49,19 @@ const UsersPage = () => {
           value={users.filter((u) => (u.age || 0) >= 18).length}
         />
       </div>
-       <div className="flex gap-3">
-        <Button size="sm">Add User</Button>
-        <Button size="sm" variant="outline">Export CSV</Button>
-      </div>
-      {/* User table */}
-     <UserTable users={users.map(u => ({ ...u, age: u.age ?? 0 }))} />
 
+      {/* Actions */}
+      <div className="flex gap-3">
+        <Button size="sm" onClick={() => navigate("/users/new")}>
+          Add User
+        </Button>
+        <Button size="sm" variant="outline">
+          Export CSV
+        </Button>
+      </div>
+
+      {/* User table */}
+      <UserTable users={users.map((u) => ({ ...u, age: u.age ?? 0 }))} />
     </div>
   );
 };

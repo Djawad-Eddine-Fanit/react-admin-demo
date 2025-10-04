@@ -8,10 +8,9 @@ import {
   getSortedRowModel,
   flexRender,
 } from "@tanstack/react-table";
-
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown, Edit, Trash } from "lucide-react";
-import { toast } from "@/components/ui/toast"; // your toast hook
+import { toast } from "@/components/ui/toast";
 import {
   Dialog,
   DialogContent,
@@ -19,19 +18,19 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils"; // helper for clsx
+import { cn } from "@/lib/utils";
 
 type User = {
   id: number;
   firstName: string;
   lastName: string;
   email: string;
-  age: number; // new field
+  age: number;
 };
 
 interface UserTableProps {
   users: User[];
-  className?: string; // allow passing extra classes
+  className?: string;
 }
 
 export function UserTable({ users, className }: UserTableProps) {
@@ -46,8 +45,6 @@ export function UserTable({ users, className }: UserTableProps) {
 
   const confirmDelete = () => {
     if (!selectedUser) return;
-
-    console.log("Deleting user:", selectedUser);
 
     toast({
       title: "User deleted",
@@ -64,9 +61,7 @@ export function UserTable({ users, className }: UserTableProps) {
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() =>
-            column.toggleSorting(column.getIsSorted() === "asc")
-          }
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           ID
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -79,9 +74,7 @@ export function UserTable({ users, className }: UserTableProps) {
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() =>
-            column.toggleSorting(column.getIsSorted() === "asc")
-          }
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -93,9 +86,7 @@ export function UserTable({ users, className }: UserTableProps) {
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() =>
-            column.toggleSorting(column.getIsSorted() === "asc")
-          }
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Age
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -107,9 +98,7 @@ export function UserTable({ users, className }: UserTableProps) {
       header: ({ column }) => (
         <Button
           variant="ghost"
-          onClick={() =>
-            column.toggleSorting(column.getIsSorted() === "asc")
-          }
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Email
           <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -120,7 +109,7 @@ export function UserTable({ users, className }: UserTableProps) {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
-        <div className="flex gap-6 justify-center">
+        <div className="flex gap-2 justify-center">
           <Button variant="outline" size="sm">
             <Edit className="h-4 w-4" />
           </Button>
@@ -148,40 +137,42 @@ export function UserTable({ users, className }: UserTableProps) {
   return (
     <div
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm overflow-hidden",
         className
       )}
     >
-      {/* Table */}
-      <table className="w-full border-collapse">
-        <thead>
-          {table.getHeaderGroups().map((hg) => (
-            <tr key={hg.id}>
-              {hg.headers.map((header) => (
-                <th key={header.id} className="p-2 text-center">
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="border-t text-center">
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="p-2">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* Responsive Table Container */}
+      <div className="w-full overflow-x-auto">
+        <table className="w-full border-collapse text-sm md:text-base">
+          <thead className="bg-muted">
+            {table.getHeaderGroups().map((hg) => (
+              <tr key={hg.id}>
+                {hg.headers.map((header) => (
+                  <th key={header.id} className="p-3 text-center whitespace-nowrap">
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr
+                key={row.id}
+                className="border-t hover:bg-muted/50 transition-colors text-center"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id} className="p-3 whitespace-nowrap">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Delete confirmation dialog */}
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>

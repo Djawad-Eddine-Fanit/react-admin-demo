@@ -43,7 +43,7 @@ export default function DashboardPage() {
 
       {/* Tables */}
       <DashboardCard title="Recent Users">
-       <UserTable users={users.map(u => ({ ...u, age: u.age ?? 0 }))} />
+       <UserTable users={users.map(u => ({ ...u, age: u.age ?? 0 })).slice(0, 5)} />
 
       </DashboardCard>
 
