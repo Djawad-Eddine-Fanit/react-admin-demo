@@ -14,9 +14,17 @@ import {
     SidebarTrigger,
     SidebarSeparator,
     SidebarRail,
+    SidebarFooter,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { Users, Files, Home, UserRoundPlus,FilePlus2  } from "lucide-react"; // PlusCircle for Add User icon
+import {
+    Users,
+    Files,
+    Home,
+    UserRoundPlus,
+    FilePlus2,
+    Settings,
+} from "lucide-react";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import * as React from "react";
 
@@ -35,8 +43,14 @@ const navItems: NavItem[] = [
 
 const actionItems: NavItem[] = [
     { to: "/users/new", label: "Add User", icon: UserRoundPlus },
-    { to: "/posts/new", label: "Add Post", icon: FilePlus2  },
+    { to: "/posts/new", label: "Add Post", icon: FilePlus2 },
 ];
+
+const settingsItem: NavItem = {
+    to: "/settings",
+    label: "Settings",
+    icon: Settings,
+};
 
 export function AppLayout() {
     const location = useLocation();
@@ -44,12 +58,14 @@ export function AppLayout() {
     return (
         <SidebarProvider>
             <Sidebar collapsible="icon">
+                {/* Header */}
                 <SidebarHeader>
                     <div className="px-2 py-1.5 flex items-center gap-2 rounded-md bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-sidebar-border/60">
                         <span className="font-semibold tracking-tight">Dashboard</span>
                     </div>
                 </SidebarHeader>
 
+                {/* Content */}
                 <SidebarContent>
                     {/* Pages Section */}
                     <SidebarGroup>
@@ -91,9 +107,35 @@ export function AppLayout() {
                 </SidebarContent>
 
                 <SidebarSeparator />
+
+                {/* --- Settings at bottom --- */}
+                <SidebarFooter>
+                    <SidebarGroup>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton
+                                        asChild
+                                        isActive={location.pathname === settingsItem.to}
+                                    >
+                                        <NavLink
+                                            to={settingsItem.to}
+                                            className="flex items-center gap-2"
+                                        >
+                                            <settingsItem.icon className="size-4" />
+                                            <span>{settingsItem.label}</span>
+                                        </NavLink>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                </SidebarFooter>
+
                 <SidebarRail />
             </Sidebar>
 
+            {/* Top bar + page outlet */}
             <SidebarInset>
                 <div className="flex items-center gap-3 border-b px-4 h-14 bg-gradient-to-r from-background/80 via-background to-background/50 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                     <SidebarTrigger className="md:hidden" />
