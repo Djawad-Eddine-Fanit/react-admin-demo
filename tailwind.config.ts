@@ -6,4 +6,5 @@ export default {
     extend: {},
   },
   plugins: [require("tailwind-animatecss")],
+  
 } satisfies Config;
