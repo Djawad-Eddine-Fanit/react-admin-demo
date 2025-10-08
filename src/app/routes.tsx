@@ -1,21 +1,20 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter } from "react-router-dom";
 
-import DashboardPage from '../pages/DashboardPage';
-import UsersPage from '../pages/UsersPage';
-import UserFormPage from '../pages/UserFormPage';
-import NotFoundPage from '../pages/NotFoundPage';
-import PostFormPage from '../pages/PostFormPage';
-import PostsPage from '../pages/PostsPage';
-import AppLayout from '@/components/layout/AppLayout';
+import DashboardPage from "../pages/DashboardPage";
+import UsersPage from "../pages/UsersPage";
+import UserFormPage from "../pages/UserFormPage";
+import NotFoundPage from "../pages/NotFoundPage";
+import PostFormPage from "../pages/PostFormPage";
+import PostsPage from "../pages/PostsPage";
+import AppLayout from "@/components/layout/AppLayout";
 const router = createBrowserRouter([
- 
   {
     path: "/",
     element: <AppLayout />,
     errorElement: <NotFoundPage />,
     children: [
       {
-        index: true, 
+        index: true,
         element: <DashboardPage />,
       },
       {

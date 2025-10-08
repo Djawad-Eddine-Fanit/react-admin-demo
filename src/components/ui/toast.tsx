@@ -11,10 +11,16 @@ export const ToastViewport = () => (
 );
 
 // Function to trigger toast
-export const toast = ({ title, description }: { title: string; description?: string }) => {
+export const toast = ({
+  title,
+  description,
+}: {
+  title: string;
+  description?: string;
+}) => {
   const id = Math.random().toString(36).substring(2, 9);
   document.dispatchEvent(
-    new CustomEvent("show-toast", { detail: { id, title, description } })
+    new CustomEvent("show-toast", { detail: { id, title, description } }),
   );
 };
 
@@ -37,12 +43,16 @@ export const ToastContainer = () => {
           duration={2000}
           className={cn(
             "relative bg-white border rounded-md shadow-md p-4 mb-2 w-full",
-            "dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            "dark:bg-gray-800 dark:border-gray-700 dark:text-white",
           )}
         >
-          <ToastPrimitives.Title className="font-bold">{t.title}</ToastPrimitives.Title>
+          <ToastPrimitives.Title className="font-bold">
+            {t.title}
+          </ToastPrimitives.Title>
           {t.description && (
-            <ToastPrimitives.Description>{t.description}</ToastPrimitives.Description>
+            <ToastPrimitives.Description>
+              {t.description}
+            </ToastPrimitives.Description>
           )}
           <ToastPrimitives.Close className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:hover:text-white">
             ✕

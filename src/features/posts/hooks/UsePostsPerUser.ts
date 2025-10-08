@@ -1,4 +1,4 @@
-import type { Post } from "@/schemas";
+import type { Post } from "@/types/schemas";
 
 export function usePostsPerUser(posts: Post[]) {
   const counts: Record<number, number> = {};

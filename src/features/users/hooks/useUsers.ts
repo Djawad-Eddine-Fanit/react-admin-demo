@@ -1,12 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { z } from "zod";
-import { UserSchema } from "@/schemas";
-import type { User } from "@/schemas";
-const UsersResponseSchema = z.object({
-  users: z.array(UserSchema),
-});
+import type { User } from "@/types/schemas";
+import { UsersResponseSchema } from "@/types/responses";
 
-async function fetchUsers(): Promise<User[]> {
+export async function fetchUsers(): Promise<User[]> {
   const res = await fetch("https://dummyjson.com/users");
   const data = await res.json();
   const parsed = UsersResponseSchema.parse(data);

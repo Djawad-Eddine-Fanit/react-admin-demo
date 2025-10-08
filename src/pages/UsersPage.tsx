@@ -1,18 +1,28 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // <-- import navigate
-import { useUsers } from "../features/users/hooks/useUsers";
+import { useNavigate } from "react-router-dom";
+import { useUsers } from "../features/users/hooks/UseUsers";
 import { UserTable } from "../features/users/components/UserTable";
-import { toast } from "react-toastify";
+
 import { StatCard } from "@/features/dashboard/components/StatCard";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 
+import { useExportToCSV } from "@/hooks/UseExportToCsv";
 const UsersPage = () => {
-  const navigate = useNavigate(); // <-- initialize navigate
+  const navigate = useNavigate();
   const { data: users, isLoading, error } = useUsers();
-
+  const { exportToCSV, isExporting } = useExportToCSV();
   useEffect(() => {
     if (error) {
-      toast.error("❌ Failed to load users");
+      const errorMessage =
+        (error as any)?.response?.data?.message || // Axios: server error message
+        (error as any)?.message || // JS error object
+        "An unexpected error occurred."; // Fallback message
+
+      toast({
+        title: "❌ Failed to load users",
+        description: errorMessage,
+      });
     }
   }, [error]);
 
@@ -28,10 +38,13 @@ const UsersPage = () => {
     return <div className="text-center text-gray-500 mt-4">No users found</div>;
   }
 
-  // --- Example stats ---
   const totalUsers = users.length;
   const avgAge =
     users.reduce((sum, u) => sum + (u.age || 0), 0) / users.length || 0;
+
+  const handleExport = () => {
+    exportToCSV(users, "users_list");
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -40,7 +53,7 @@ const UsersPage = () => {
         <h1 className="text-2xl font-bold">Users</h1>
       </div>
 
-      {/* Stat cards */}
+      {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard label="Total Users" value={totalUsers} />
         <StatCard label="Avg Age" value={avgAge.toFixed(1)} />
@@ -55,12 +68,17 @@ const UsersPage = () => {
         <Button size="sm" onClick={() => navigate("/users/new")}>
           Add User
         </Button>
-        <Button size="sm" variant="outline">
-          Export CSV
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleExport}
+          disabled={isExporting}
+        >
+          {isExporting ? "Exporting..." : "Export CSV"}
         </Button>
       </div>
 
-      {/* User table */}
+      {/* User Table */}
       <UserTable users={users.map((u) => ({ ...u, age: u.age ?? 0 }))} />
     </div>
   );

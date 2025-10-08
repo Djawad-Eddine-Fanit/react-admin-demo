@@ -1,12 +1,9 @@
 import type { Config } from "tailwindcss";
 
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {},
   },
-  plugins: [require('tailwind-animatecss')],
+  plugins: [require("tailwind-animatecss")],
 } satisfies Config;

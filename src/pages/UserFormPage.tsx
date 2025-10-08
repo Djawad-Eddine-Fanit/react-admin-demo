@@ -1,16 +1,15 @@
 "use client";
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { addUserSchema } from "@/schemas";
-import type { AddUserInput } from "@/schemas";
+import { addUserSchema } from "@/types/schemas";
+import type { AddUserInput } from "@/types/schemas";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-
+import { useCreateUser } from "@/features/users/hooks/UseCreateUser";
 export default function UserFormPage() {
   const navigate = useNavigate();
 
@@ -19,27 +18,37 @@ export default function UserFormPage() {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    setError,
   } = useForm<AddUserInput>({
     resolver: zodResolver(addUserSchema) as any,
   });
+  const createUserMutation = useCreateUser();
 
-  const onSubmit = async (data: AddUserInput) => {
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+  // Destructure needed properties
+  const { mutate: createUser } = createUserMutation;
 
-      toast({
-        title: "User created",
-        description: `${data.firstName} ${data.lastName} was successfully created.`,
-      });
+  const onSubmit = (data: AddUserInput) => {
+    createUser(data, {
+      onSuccess: () => {
+        toast({ title: "Success", description: `${data.firstName} created.` });
+        reset();
+        navigate("/users");
+      },
+      onError: (err: unknown) => {
+        // Narrow unknown to an object with a string message
+        const message =
+          err instanceof Error
+            ? err.message
+            : typeof err === "string"
+              ? err
+              : "Failed to create user";
 
-      reset();
-      navigate("/users");
-    } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to create user.",
-      });
-    }
+        toast({ title: "Error", description: message });
+
+        // Optionally, set form-level error
+        setError("root", { type: "server", message });
+      },
+    });
   };
 
   return (
@@ -134,7 +143,6 @@ export default function UserFormPage() {
             <li>
               • After creating a user, you’ll be redirected to the users list.
             </li>
-            
           </ul>
 
           <div className="mt-8 p-4 bg-muted rounded-lg">

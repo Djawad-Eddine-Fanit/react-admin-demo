@@ -26,12 +26,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-type Post = {
-  id: number;
-  userId: number;
-  title: string;
-  body: string;
-};
+import type { Post } from "@/types/schemas";
 
 interface PostTableProps {
   posts: Post[];
@@ -159,7 +154,7 @@ export function PostTable({ posts }: PostTableProps) {
   return (
     <div
       className={cn(
-        "bg-card text-card-foreground rounded-xl border py-4 sm:py-6 px-2 sm:px-4 shadow-sm overflow-hidden"
+        "bg-card text-card-foreground rounded-xl border py-4 sm:py-6 px-2 sm:px-4 shadow-sm overflow-hidden",
       )}
     >
       <div className="overflow-x-auto">
@@ -176,7 +171,7 @@ export function PostTable({ posts }: PostTableProps) {
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </th>
                 ))}
@@ -194,10 +189,7 @@ export function PostTable({ posts }: PostTableProps) {
                     key={cell.id}
                     className="p-2 sm:p-3 text-center align-middle"
                   >
-                    {flexRender(
-                      cell.column.columnDef.cell,
-                      cell.getContext()
-                    )}
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
               </tr>

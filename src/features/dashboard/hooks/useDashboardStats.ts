@@ -1,6 +1,6 @@
-import { useUsers } from "@/features/users/hooks/useUsers";
-import { usePosts } from "@/features/users - Copie/hooks/UsePosts";
-import type { User, Post } from "@/schemas";
+import { useUsers } from "@/features/users/hooks/UseUsers";
+import { usePosts } from "@/features/posts/hooks/UsePosts";
+import type { User } from "@/types/schemas";
 
 export function useDashboardStats() {
   const { data: users = [] } = useUsers();
@@ -13,7 +13,7 @@ export function useDashboardStats() {
     users.length > 0
       ? Math.round(
           users.reduce((sum: number, u: User) => sum + (u.age ?? 0), 0) /
-            users.length
+            users.length,
         )
       : 0;
 

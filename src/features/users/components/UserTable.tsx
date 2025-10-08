@@ -19,14 +19,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-
-type User = {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  age: number;
-};
+import type { User } from "@/types/schemas";
 
 interface UserTableProps {
   users: User[];
@@ -37,24 +30,19 @@ export function UserTable({ users, className }: UserTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [openDialog, setOpenDialog] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<User | null>(null);
-
   const handleDeleteClick = (user: User) => {
     setSelectedUser(user);
     setOpenDialog(true);
   };
-
   const confirmDelete = () => {
     if (!selectedUser) return;
-
     toast({
       title: "User deleted",
       description: `${selectedUser.firstName} ${selectedUser.lastName} has been deleted.`,
     });
-
     setOpenDialog(false);
     setSelectedUser(null);
   };
-
   const columns: ColumnDef<User>[] = [
     {
       accessorKey: "id",
@@ -138,7 +126,7 @@ export function UserTable({ users, className }: UserTableProps) {
     <div
       className={cn(
         "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm overflow-hidden",
-        className
+        className,
       )}
     >
       {/* Responsive Table Container */}
@@ -148,10 +136,16 @@ export function UserTable({ users, className }: UserTableProps) {
             {table.getHeaderGroups().map((hg) => (
               <tr key={hg.id}>
                 {hg.headers.map((header) => (
-                  <th key={header.id} className="p-3 text-center whitespace-nowrap">
+                  <th
+                    key={header.id}
+                    className="p-3 text-center whitespace-nowrap"
+                  >
                     {header.isPlaceholder
                       ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                   </th>
                 ))}
               </tr>

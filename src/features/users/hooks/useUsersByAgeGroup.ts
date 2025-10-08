@@ -1,4 +1,4 @@
-import type { User } from "@/schemas";
+import type { User } from "@/types/schemas";
 
 export function useUsersByAgeGroup(users: User[]) {
   const groups = { "18-25": 0, "26-40": 0, "40+": 0 };
