@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { usePosts } from "@/features/posts/hooks/UsePosts";
 import { PostTable } from "@/features/posts/components/PostTable";
-import { toast } from "react-toastify";
+import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { StatCard } from "@/features/dashboard/components/StatCard";
 import { useExportToCSV } from "@/hooks/UseExportToCsv";
@@ -14,13 +14,14 @@ const PostsPage = () => {
   } = usePosts();
 
   const { exportToCSV, isExporting } = useExportToCSV();
-
   useEffect(() => {
-    if (postsError) {
-      toast.error("❌ Failed to load posts ");
-    }
-  }, [postsError]);
-
+  if (postsError) {
+    toast({
+      title: "❌ Failed to load posts",
+      description: "Please try again later.",
+    });
+  }
+}, [postsError, toast]);
   if (postsLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
