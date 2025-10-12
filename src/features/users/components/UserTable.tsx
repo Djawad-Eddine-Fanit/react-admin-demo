@@ -20,11 +20,8 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { User } from "@/types/schemas";
+import type {UserTableProps}  from "@/types/props";
 
-interface UserTableProps {
-  users: User[];
-  className?: string;
-}
 
 export function UserTable({ users, className }: UserTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);

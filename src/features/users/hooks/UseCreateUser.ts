@@ -1,28 +1,26 @@
 import { useMutation } from "@tanstack/react-query";
 import type { AddUserInput } from "@/types/schemas";
-
-interface ApiError {
-  message?: string;
-  fields?: Record<string, string>;
-}
-
+import type { ApiError } from "@/types/schemas";
+import { api } from "@/lib/api";
+import { isAxiosError } from "axios"; 
 export function useCreateUser() {
-  return useMutation({
+  return useMutation<unknown, ApiError, AddUserInput>({
+    mutationKey: ["createUser"], 
     mutationFn: async (data: AddUserInput) => {
-       const res = await fetch("https://jsonplaceholder.typicode.com/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      const result: any = await res.json();
-
-      if (!res.ok) {
-        const error: ApiError = result;
-        throw error; 
+      try {
+        const { data: result } = await api.post(
+          "https://jsonplaceholder.typicode.com/users",
+          data,
+          { headers: { "Content-Type": "application/json" } }
+        );
+        return result;
+      } catch (err: unknown) {
+        if (isAxiosError(err) && err.response?.data) {
+          const apiError: ApiError = err.response.data;
+          throw apiError;
+        }
+        throw { message: "Failed to create user" } as ApiError;
       }
-
-      return result;
     },
   });
 }

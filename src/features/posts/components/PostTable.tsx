@@ -20,17 +20,15 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  Tooltip,
+  Tooltip, 
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
 import type { Post } from "@/types/schemas";
+import type {PostTableProps}  from "@/types/props";
 
-interface PostTableProps {
-  posts: Post[];
-}
 
 export function PostTable({ posts }: PostTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);

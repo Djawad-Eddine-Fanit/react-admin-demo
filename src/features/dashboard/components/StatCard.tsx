@@ -1,11 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { StatCardProps } from "@/types/props";
 
-export interface StatCardProps {
-  label: string;
-  value: string | number;
-  delta?: string;
-  helpText?: string; // <-- add this
-}
 
 export function StatCard({ label, value, delta, helpText }: StatCardProps) {
   return (

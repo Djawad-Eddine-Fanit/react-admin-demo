@@ -1,50 +1,26 @@
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUsers } from "../features/users/hooks/UseUsers";
 import { UserTable } from "../features/users/components/UserTable";
-
 import { StatCard } from "@/features/dashboard/components/StatCard";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/toast";
-
+import { Skeleton } from "@/components/ui/skeleton";
 import { useExportToCSV } from "@/hooks/UseExportToCsv";
+
 const UsersPage = () => {
   const navigate = useNavigate();
-  const { data: users, isLoading, error } = useUsers();
+  const { data: users = [], isLoading, isError } = useUsers();
   const { exportToCSV, isExporting } = useExportToCSV();
-  useEffect(() => {
-    if (error) {
-      const errorMessage =
-        (error as any)?.response?.data?.message || // Axios: server error message
-        (error as any)?.message || // JS error object
-        "An unexpected error occurred."; // Fallback message
 
-      toast({
-        title: "❌ Failed to load users",
-        description: errorMessage,
-      });
-    }
-  }, [error]);
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  if (!users || users.length === 0) {
-    return <div className="text-center text-gray-500 mt-4">No users found</div>;
-  }
-
+  // ✅ Derived stats
   const totalUsers = users.length;
   const avgAge =
-    users.reduce((sum, u) => sum + (u.age || 0), 0) / users.length || 0;
+    totalUsers > 0
+      ? users.reduce((sum, u) => sum + (u.age ?? 0), 0) / totalUsers
+      : 0;
+  const adultCount = users.filter((u) => (u.age ?? 0) >= 18).length;
 
-  const handleExport = () => {
-    exportToCSV(users, "users_list");
-  };
+  // ✅ Handle export
+  const handleExport = () => exportToCSV(users, "users_list");
 
   return (
     <div className="p-6 space-y-6">
@@ -53,14 +29,21 @@ const UsersPage = () => {
         <h1 className="text-2xl font-bold">Users</h1>
       </div>
 
-      {/* Stats */}
+      {/* Stats Section */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <StatCard label="Total Users" value={totalUsers} />
-        <StatCard label="Avg Age" value={avgAge.toFixed(1)} />
-        <StatCard
-          label="Adults"
-          value={users.filter((u) => (u.age || 0) >= 18).length}
-        />
+        {isLoading ? (
+          <>
+            <Skeleton className="h-20 w-full rounded-2xl" />
+            <Skeleton className="h-20 w-full rounded-2xl" />
+            <Skeleton className="h-20 w-full rounded-2xl" />
+          </>
+        ) : (
+          <>
+            <StatCard label="Total Users" value={totalUsers} />
+            <StatCard label="Avg Age" value={avgAge.toFixed(1)} />
+            <StatCard label="Adults" value={adultCount} />
+          </>
+        )}
       </div>
 
       {/* Actions */}
@@ -72,14 +55,30 @@ const UsersPage = () => {
           size="sm"
           variant="outline"
           onClick={handleExport}
-          disabled={isExporting}
+          disabled={isExporting || isLoading || users.length === 0}
         >
           {isExporting ? "Exporting..." : "Export CSV"}
         </Button>
       </div>
 
-      {/* User Table */}
-      <UserTable users={users.map((u) => ({ ...u, age: u.age ?? 0 }))} />
+      {/* User Table or Skeleton Rows */}
+      <div className="mt-4">
+        {isLoading ? (
+          <div className="space-y-2">
+            {[...Array(5)].map((_, i) => (
+              <Skeleton key={i} className="h-10 w-full rounded-md" />
+            ))}
+          </div>
+        ) : isError ? (
+          <div className="text-center text-gray-500 mt-4">
+            Failed to load users. Please try again later.
+          </div>
+        ) : users.length === 0 ? (
+          <div className="text-center text-gray-500 mt-4">No users found</div>
+        ) : (
+          <UserTable users={users.map((u) => ({ ...u, age: u.age ?? 0 }))} />
+        )}
+      </div>
     </div>
   );
 };

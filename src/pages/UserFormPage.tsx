@@ -1,4 +1,5 @@
 "use client";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addUserSchema } from "@/types/schemas";
@@ -6,50 +7,38 @@ import type { AddUserInput } from "@/types/schemas";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/components/ui/toast";
+
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { useCreateUser } from "@/features/users/hooks/UseCreateUser";
+
 export default function UserFormPage() {
   const navigate = useNavigate();
-
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
     setError,
   } = useForm<AddUserInput>({
     resolver: zodResolver(addUserSchema) as any,
   });
-  const createUserMutation = useCreateUser();
 
-  // Destructure needed properties
-  const { mutate: createUser } = createUserMutation;
+  const { mutateAsync: createUser, isPending } = useCreateUser();
 
-  const onSubmit = (data: AddUserInput) => {
-    createUser(data, {
-      onSuccess: () => {
-        toast({ title: "Success", description: `${data.firstName} created.` });
-        reset();
-        navigate("/users");
-      },
-      onError: (err: unknown) => {
-        // Narrow unknown to an object with a string message
-        const message =
-          err instanceof Error
-            ? err.message
-            : typeof err === "string"
-              ? err
-              : "Failed to create user";
+  const onSubmit = async (data: AddUserInput) => {
+  try {
+    await createUser(data);
+    reset();
+    navigate("/users"); 
+  } catch (err: any) {
+    
+    const message =
+      err?.message || "An unexpected error occurred while creating the user.";
 
-        toast({ title: "Error", description: message });
-
-        // Optionally, set form-level error
-        setError("root", { type: "server", message });
-      },
-    });
-  };
+    setError("root", { type: "server", message });
+  }
+};
 
   return (
     <div className="min-h-screen bg-muted/40 py-12 px-6">
@@ -68,9 +57,6 @@ export default function UserFormPage() {
             Back to Users
           </Button>
         </div>
-        <p className="text-muted-foreground text-sm">
-          Fill out the information below to add a new user to your system.
-        </p>
       </div>
 
       {/* Main Content */}
@@ -80,56 +66,53 @@ export default function UserFormPage() {
           <h2 className="text-xl font-semibold mb-6">User Information</h2>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            <div className="flex flex-col gap-2">
+            <div>
               <Label>First Name</Label>
-              <Input {...register("firstName")} placeholder="John" />
+              <Input {...register("firstName")} placeholder="John" className=" mt-2" />
               {errors.firstName && (
-                <span className="text-red-500 text-sm">
+                <p className="text-red-500 text-sm">
                   {errors.firstName.message}
-                </span>
+                </p>
               )}
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div>
               <Label>Last Name</Label>
-              <Input {...register("lastName")} placeholder="Doe" />
+              <Input {...register("lastName")} placeholder="Doe" className=" mt-2" />
               {errors.lastName && (
-                <span className="text-red-500 text-sm">
+                <p className="text-red-500 text-sm">
                   {errors.lastName.message}
-                </span>
+                </p>
               )}
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div>
               <Label>Email</Label>
-              <Input {...register("email")} placeholder="john@example.com" />
+              <Input {...register("email")} placeholder="john@example.com"  className=" mt-2" />
               {errors.email && (
-                <span className="text-red-500 text-sm">
-                  {errors.email.message}
-                </span>
+                <p className="text-red-500 text-sm">{errors.email.message}</p>
               )}
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div>
               <Label>Age (optional)</Label>
               <Input
                 {...register("age", { valueAsNumber: true })}
                 placeholder="30"
                 type="number"
+                 className=" mt-2"
               />
               {errors.age && (
-                <span className="text-red-500 text-sm">
-                  {errors.age.message}
-                </span>
+                <p className="text-red-500 text-sm">{errors.age.message}</p>
               )}
             </div>
 
             <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isPending}
               className="w-full font-medium"
             >
-              {isSubmitting ? "Creating..." : "Create User"}
+              {isPending ? "Creating..." : "Create User"}
             </Button>
           </form>
         </div>

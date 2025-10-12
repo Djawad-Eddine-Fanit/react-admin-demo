@@ -7,7 +7,7 @@ import { usePostsPerUser } from "@/features/posts/hooks/UsePostsPerUser";
 import { useUsersByAgeGroup } from "@/features/users/hooks/UseUsersByAgeGroup";
 import { useUserRegistrations } from "@/features/users/hooks/UseUserRegistrations";
 import { useExportToCSV } from "@/hooks/UseExportToCsv";
-// Components
+
 import { StatCard } from "@/features/dashboard/components/StatCard";
 import DashboardCard from "@/features/dashboard/components/DashboardCard";
 import { UserTable } from "@/features/users/components/UserTable";
@@ -18,84 +18,193 @@ import {
   LineChartCard,
 } from "@/components/charts/Charts";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function DashboardPage() {
-  const { stats } = useDashboardStats();
-  const { data: users = [] } = useUsers();
-  const { data: posts = [] } = usePosts();
+const DashboardPage = () => {
+  const {
+    stats,
+    isLoading: statsLoading,
+    isError: statsError,
+  } = useDashboardStats();
+
+  const {
+    data: users = [],
+    isLoading: usersLoading,
+    isError: usersError,
+  } = useUsers();
+
+  const {
+    data: posts = [],
+    isLoading: postsLoading,
+    isError: postsError,
+  } = usePosts();
+
+  const { exportToCSV, isExporting } = useExportToCSV();
+
   const postsPerUser = usePostsPerUser(posts);
   const usersByAge = useUsersByAgeGroup(users);
   const registrations = useUserRegistrations();
-  const { exportToCSV, isExporting: isCsvExporting } = useExportToCSV();
-  const handleExportUsers = () => exportToCSV(users, "users_data");
-  const handleExportPosts = () => exportToCSV(posts, "posts_data");
 
-  
+  const handleExportUsers = () => {
+    if (users.length) exportToCSV(users, "users_data");
+  };
+
+  const handleExportPosts = () => {
+    if (posts.length) exportToCSV(posts, "posts_data");
+  };
+
+  const isLoading = statsLoading || usersLoading || postsLoading;
+  const isError = statsError || usersError || postsError;
+
   return (
     <div className="p-6 space-y-8">
-      {/* Wrap dashboard content in an ID for PDF export */}
-      <div id="dashboard-section">
-        {/* Stat Cards */}
-        <div className="grid gap-4 md:grid-cols-4">
-          <StatCard label="Users" value={stats.totalUsers} />
-          <StatCard label="Posts" value={stats.totalPosts} />
-          <StatCard label="Avg Age" value={stats.avgAge} />
-          <StatCard
-            label="Active"
-            value={stats.activeUsers}
-            helpText={`${stats.activePercent}%`}
-          />
-        </div>
-        {/* Charts */}
-        <div className="grid gap-6 md:grid-cols-3 mt-6">
-          <BarChartCard
-            title="Posts per User"
-            data={postsPerUser}
-            dataKey="posts"
-            categoryKey="user"
-          />
-          <LineChartCard
-            title="Registrations"
-            data={registrations}
-            xKey="month"
-            lines={[{ key: "registrations", stroke: "#3b82f6" }]}
-          />
-          <PieChartCard title="Age Groups" data={usersByAge} />
-        </div>
-        {/* Tables */}
-        <div className="mt-6">
-          <DashboardCard title="Recent Users">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Dashboard</h1>
+      </div>
+
+      {/* Stats Section */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <StatCard
+          label="Users"
+          value={
+            isLoading
+              ? "…"
+              : isError
+              ? "—"
+              : stats.totalUsers.toString()
+          }
+        />
+        <StatCard
+          label="Posts"
+          value={
+            isLoading
+              ? "…"
+              : isError
+              ? "—"
+              : stats.totalPosts.toString()
+          }
+        />
+        <StatCard
+          label="Avg Age"
+          value={
+            isLoading ? "…" : isError ? "—" : stats.avgAge.toString()
+          }
+        />
+        <StatCard
+          label="Active"
+          value={
+            isLoading
+              ? "…"
+              : isError
+              ? "—"
+              : stats.activeUsers.toString()
+          }
+          helpText={
+            !isLoading && !isError ? `${stats.activePercent}%` : ""
+          }
+        />
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid gap-6 md:grid-cols-3 mt-6">
+        <DashboardCard title="Posts per User">
+          {isLoading ? (
+            <Skeleton className="h-48 w-full rounded-xl" />
+          ) : isError ? (
+            <p className="text-center text-gray-500">
+              Failed to load chart.
+            </p>
+          ) : (
+            <BarChartCard
+              title=""
+              data={postsPerUser}
+              dataKey="posts"
+              categoryKey="user"
+            />
+          )}
+        </DashboardCard>
+
+        <DashboardCard title="Registrations">
+          {isLoading ? (
+            <Skeleton className="h-48 w-full rounded-xl" />
+          ) : isError ? (
+            <p className="text-center text-gray-500">
+              Failed to load chart.
+            </p>
+          ) : (
+            <LineChartCard
+              title=""
+              data={registrations}
+              xKey="month"
+              lines={[{ key: "registrations", stroke: "#3b82f6" }]}
+            />
+          )}
+        </DashboardCard>
+
+        <DashboardCard title="Age Groups">
+          {isLoading ? (
+            <Skeleton className="h-48 w-full rounded-xl" />
+          ) : isError ? (
+            <p className="text-center text-gray-500">
+              Failed to load chart.
+            </p>
+          ) : (
+            <PieChartCard title="" data={usersByAge} />
+          )}
+        </DashboardCard>
+      </div>
+
+      {/* Tables Section */}
+      
+        <DashboardCard title="Recent Users">
+          {isLoading ? (
+            <Skeleton className="h-48 w-full rounded-xl" />
+          ) : isError ? (
+            <p className="text-center text-gray-500">
+              Failed to load users.
+            </p>
+          ) : (
             <UserTable
               users={users.map((u) => ({ ...u, age: u.age ?? 0 })).slice(0, 5)}
             />
-          </DashboardCard>
-        </div>
-        <div className="mt-6">
-          <DashboardCard title="Recent Posts">
+          )}
+        </DashboardCard>
+
+        <DashboardCard title="Recent Posts">
+          {isLoading ? (
+            <Skeleton className="h-48 w-full rounded-xl" />
+          ) : isError ? (
+            <p className="text-center text-gray-500">
+              Failed to load posts.
+            </p>
+          ) : (
             <PostTable posts={posts.slice(0, 5)} />
-          </DashboardCard>
-        </div>
-      </div>
-      {/* Action Buttons */}
-      <div className="md:flex gap-3">
-       
+          )}
+        </DashboardCard>
+     
+
+      {/* Actions */}
+      <div className="md:flex gap-3 mt-6">
         <Button
           size="sm"
           variant="outline"
           onClick={handleExportUsers}
-          disabled={isCsvExporting}
+          disabled={isExporting || isLoading}
         >
-          {isCsvExporting ? "Exporting..." : "Export Users CSV"}
+          {isExporting ? "Exporting..." : "Export Users CSV"}
         </Button>
         <Button
           size="sm"
           variant="outline"
           onClick={handleExportPosts}
-          disabled={isCsvExporting}
+          disabled={isExporting || isLoading}
         >
-          {isCsvExporting ? "Exporting..." : "Export Posts CSV"}
+          {isExporting ? "Exporting..." : "Export Posts CSV"}
         </Button>
       </div>
     </div>
   );
-}
+};
+
+export default DashboardPage;

@@ -1,9 +1,5 @@
 import { Card } from "@/components/ui/card";
-
-interface DashboardCardProps {
-  title: string;
-  children: React.ReactNode;
-}
+import type { DashboardCardProps } from "@/types/props";
 
 export default function DashboardCard({ title, children }: DashboardCardProps) {
   return (
