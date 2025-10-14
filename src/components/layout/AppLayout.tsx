@@ -57,7 +57,7 @@ export function AppLayout() {
 
   return (
     <SidebarProvider>
-      <Sidebar collapsible="icon">
+      <Sidebar collapsible="icon" className="fixed z-50">
         {/* Header */}
         <SidebarHeader>
           <div className="px-2 py-1.5 flex items-center gap-2 rounded-md bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-sidebar-border/60">

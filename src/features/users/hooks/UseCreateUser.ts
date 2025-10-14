@@ -1,11 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
-import type { AddUserInput } from "@/types/schemas";
-import type { ApiError } from "@/types/schemas";
+import type { AddUserInput, ApiError } from "@/types/schemas";
 import { api } from "@/lib/api";
-import { isAxiosError } from "axios"; 
+import { isAxiosError } from "axios";
+import { toast } from "@/components/ui/toast"; 
 export function useCreateUser() {
   return useMutation<unknown, ApiError, AddUserInput>({
-    mutationKey: ["createUser"], 
+    mutationKey: ["createUser"],
+
     mutationFn: async (data: AddUserInput) => {
       try {
         const { data: result } = await api.post(
@@ -21,6 +22,13 @@ export function useCreateUser() {
         }
         throw { message: "Failed to create user" } as ApiError;
       }
+    },
+
+    onSuccess: (_data, variables) => {
+      toast({
+        title: "✅ User Created",
+        description: `User "${variables.firstName} ${variables.lastName}" was added successfully.`,
+      });
     },
   });
 }

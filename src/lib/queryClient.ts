@@ -1,89 +1,51 @@
-import { QueryClient } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryCache,
+  MutationCache,
+} from "@tanstack/react-query";
 import { toast } from "@/components/ui/toast";
 
 
 export const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error: unknown, query) => {
+      console.error(`❌ Query Error [${query.queryKey}]:`, error);
+      const message =
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred while fetching data.";
+
+      toast({
+        title: "❌ Query Failed",
+        description: message,
+        
+      });
+    },
+  }),
+
+  mutationCache: new MutationCache({
+    onError: (error: unknown, _variables, _context, mutation) => {
+      console.error(`❌ Mutation Error [${mutation.options.mutationKey}]:`, error);
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Something went wrong while performing this operation.";
+
+      toast({
+        title: "❌ Operation Failed",
+        description: message,
+       
+      });
+    },
+  }),
+
   defaultOptions: {
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
-      refetchOnReconnect: true, 
+      refetchOnReconnect: true,
+      staleTime: 1000 * 60 * 2, 
     },
   },
 });
-
-const shownQueryErrors = new Set<string>();
-
-queryClient.getQueryCache().subscribe((event) => {
-  const query = event.query;
-  const state = query?.state;
-
-  if (state?.status === "error" && state.error) {
-    const error = state.error as Error;
-
-   
-    const key = query.queryKey.join("-");
-    if (!shownQueryErrors.has(key)) {
-      shownQueryErrors.add(key);
-
-      toast({
-        title: "❌ Query Failed",
-        description: error.message || "An unexpected error occurred.",
-      });
-
-    
-      setTimeout(() => shownQueryErrors.delete(key), 5000);
-    }
-  }
-});
-
-
-const shownMutationSuccesses = new Set<string>();
-const shownMutationErrors = new Set<string>();
-
-queryClient.getMutationCache().subscribe((event) => {
-  const mutation = event.mutation;
-  if (!mutation) return;
-
-  const state = mutation.state;
-
-
-  const key =
-    mutation.options.mutationKey?.[0] &&
-    typeof mutation.options.mutationKey[0] === "string"
-      ? mutation.options.mutationKey[0]
-      : "unknown";
-
-
-  if (state?.status === "success") {
-    if (!shownMutationSuccesses.has(key)) {
-      shownMutationSuccesses.add(key);
-
-      toast({
-        title: "✅ Success",
-        description: "Operation completed successfully.",
-      });
-
-      setTimeout(() => shownMutationSuccesses.delete(key), 2000);
-    }
-  }
-
- 
-  if (state?.status === "error" && state.error) {
-    const error = state.error as Error;
-
-    if (!shownMutationErrors.has(error.message)) {
-      shownMutationErrors.add(error.message);
-
-      toast({
-        title: "❌ Operation Failed",
-        description: error.message || "Something went wrong while performing this action.",
-      });
-
-      setTimeout(() => shownMutationErrors.delete(error.message), 5000);
-    }
-  }
-});
-
-
 
